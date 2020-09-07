@@ -65,3 +65,7 @@ _main:
 | disphw | ax = 16 位数据 | | 以 16 进制显示 ax 中的内容 |
 | disphd | eax = 32 位数据 | | 以 16 进制显示 eax 中的内容 |
 | disphq | rax = 64 位数据 | | 以 16 进制显示 rax 中的内容 |
+| dispuib | al = 8 位数据 | | 以无符号十进制显示 al 中的内容 |
+| dispuiw | ax = 16 位数据 | | 以无符号十进制显示 ax 中的内容 |
+| dispuid | eax = 32 位数据 | | 以无符号十进制显示 eax 中的内容 |
+| dispuiq | rax = 64 位数据 | | 以无符号十进制显示 rax 中的内容 |

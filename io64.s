@@ -74,24 +74,8 @@ dispc:
 
 dispcrlf:
         push    rax
-        push    rdi
-        push    rsi
-        push    rdx
-        push    rcx
-
-        mov     ax, 10
-        push    ax
-        mov     rdi, 1
-        mov     rsi, rsp
-        mov     rdx, 1
-        mov     rax, 0x02000004
-        syscall
-        pop     ax
-
-        pop     rcx
-        pop     rdx
-        pop     rsi
-        pop     rdi
+        mov     al, 10
+        call    dispc
         pop     rax
         ret
 
@@ -198,6 +182,86 @@ __disphqlooop:
         
         pop     rcx
         pop     rax
+        ret
+
+; al = input data
+dispuib:
+        push    rax
+        push    rbx
+
+        mov     rbx, rax
+        xor     rax, rax
+        mov     al, bl
+        call    dispuiq
+        
+        pop     rbx
+        pop     rax
+        ret
+
+; ax = input data
+dispuiw:
+        push    rax
+        push    rbx
+
+        mov     rbx, rax
+        xor     rax, rax
+        mov     ax, bx
+        call    dispuiq
+        
+        pop     rbx
+        pop     rax
+        ret
+
+; eax = input data
+dispuid:
+        push    rax
+        push    rbx
+
+        mov     rbx, rax
+        xor     rax, rax
+        mov     eax, ebx
+        call    dispuiq
+        
+        pop     rbx
+        pop     rax
+        ret
+
+; rax = input data
+dispuiq:
+        push    rcx
+        push    rdx
+        push    rax
+        push    rsi
+        push    rdi
+
+        xor     rcx, rcx
+        xor     rsi, rsi
+        mov     rdi, __btoh_tb
+
+__dispuiwloop:
+        xor     rdx, rdx
+        mov     rbx, 10
+        div     rbx
+        mov     rbx, rax
+        mov     si, dx
+        mov     al, [rdi + rsi]
+        push    ax
+        inc     rcx
+        mov     rax, rbx
+        cmp     rax, 0
+        je      __dispuiwprint
+        jmp     __dispuiwloop
+
+__dispuiwprint:
+        pop     ax
+        call    dispc
+        loop    __dispuiwprint
+
+        pop     rdi
+        pop     rsi
+        pop     rax
+        pop     rdx
+        pop     rcx
         ret
 
 readc:
