@@ -264,6 +264,92 @@ __dispuiwprint:
         pop     rcx
         ret
 
+; %1 = reg, %2 = msg address
+%macro  __disprq_reg 2
+        mov     rax, %2
+        call    dispmsg
+        mov     rax, %1
+        call    disphq
+        mov     rax, 9
+        call    dispc
+%endmacro
+disprq:
+        push    rax
+
+        push    rax
+        mov     rax, __raxequstr
+        call    dispmsg
+        pop     rax
+        call    disphq
+        mov     rax, 9
+        call    dispc
+
+        __disprq_reg    rbx, __rbxequstr
+        call    dispcrlf
+
+        __disprq_reg    rcx, __rcxequstr
+        __disprq_reg    rdx, __rdxequstr
+        call    dispcrlf
+
+        __disprq_reg    rsi, __rsiequstr
+        __disprq_reg    rdi, __rdiequstr
+        call    dispcrlf
+
+        __disprq_reg    rbp, __rbpequstr
+        __disprq_reg    rsp, __rspequstr
+        call    dispcrlf
+
+        pop     rax
+        ret
+
+%macro  __disprd_reg 2
+        mov     rax, "E"
+        call    dispc
+        mov     rax, %2
+        inc     rax
+        call    dispmsg
+        mov     eax, %1
+        call    disphd
+        mov     rax, 9
+        call    dispc
+%endmacro
+disprd:
+        push    rax
+
+        push    rax
+        mov     rax, "E"
+        call    dispc
+        mov     rax, __raxequstr
+        inc     rax
+        call    dispmsg
+        pop     rax
+        call    disphd
+        mov     rax, 9
+        call    dispc
+
+        __disprd_reg    ebx, __rbxequstr
+        __disprd_reg    ecx, __rcxequstr
+        __disprd_reg    edx, __rdxequstr
+        call    dispcrlf
+
+        __disprd_reg    esi, __rsiequstr
+        __disprd_reg    edi, __rdiequstr
+        __disprd_reg    ebp, __rbpequstr
+        __disprd_reg    esp, __rspequstr
+        call    dispcrlf
+
+        pop     rax
+        ret
+
+__raxequstr:    db "RAX = ", 0
+__rbxequstr:    db "RBX = ", 0
+__rcxequstr:    db "RCX = ", 0
+__rdxequstr:    db "RDX = ", 0
+__rsiequstr:    db "RSI = ", 0
+__rdiequstr:    db "RDI = ", 0
+__rbpequstr:    db "RBP = ", 0
+__rspequstr:    db "RSP = ", 0
+
 readc:
         ret
 
