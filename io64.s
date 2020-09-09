@@ -7,6 +7,9 @@
 global  _main
 default rel
 
+STDIN_FD        equ 0
+STDOUT_FD       equ 1
+
 ; input:    rax = address of string with end 0
 ; output:   rax = length of string
 __strlen:
@@ -40,7 +43,7 @@ dispmsg:
         call    __strlen
         mov     rdx, rax
         mov     rax, 0x02000004
-        mov     rdi, 1
+        mov     rdi, STDOUT_FD
         syscall
 
         pop     rcx
@@ -58,7 +61,7 @@ dispc:
         push    rcx
 
         push    ax
-        mov     rdi, 1
+        mov     rdi, STDOUT_FD
         mov     rsi, rsp
         mov     rdx, 1
         mov     rax, 0x02000004
@@ -350,9 +353,27 @@ __rdiequstr:    db "RDI = ", 0
 __rbpequstr:    db "RBP = ", 0
 __rspequstr:    db "RSP = ", 0
 
+; al = ascii code
 readc:
+
         ret
 
+; input:        rax = buffer address
+; output:       rax = input length
 readmsg:
+        push    rdi
+        push    rsi
+        push    rdx
+        push    rcx
 
+        mov     rdi, STDIN_FD
+        mov     rsi, rax
+        mov     rdx, 0xff
+        mov     rax, 0x02000003
+        syscall
+
+        pop     rcx
+        pop     rdx
+        pop     rsi
+        pop     rdi
         ret
