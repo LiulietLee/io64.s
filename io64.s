@@ -1,14 +1,29 @@
-%macro  exit    1
-        mov     rax, 0x02000001
-        mov     rdi, %1
-        syscall
-%endmacro
-
 global  _main
 default rel
 
 STDIN_FD        equ 0
 STDOUT_FD       equ 1
+SYS_EXIT_NUM    equ 0x02000001
+SYS_READ_NUM    equ 0x02000003
+SYS_WRITE_NUM   equ 0x02000004
+
+%macro  exit    1
+        mov     rax, SYS_EXIT_NUM
+        mov     rdi, %1
+        syscall
+%endmacro
+
+%macro  sys_write_call 0
+        mov     rax, SYS_WRITE_NUM
+        mov     rdi, STDOUT_FD
+        syscall
+%endmacro
+
+%macro  sys_read_call 0
+        mov     rax, SYS_READ_NUM
+        mov     rdi, STDIN_FD
+        syscall
+%endmacro
 
 ; input:    rax = address of string with end 0
 ; output:   rax = length of string
@@ -42,9 +57,7 @@ dispmsg:
         mov     rsi, rax
         call    __strlen
         mov     rdx, rax
-        mov     rax, 0x02000004
-        mov     rdi, STDOUT_FD
-        syscall
+        sys_write_call
 
         pop     rcx
         pop     rdi
@@ -61,11 +74,9 @@ dispc:
         push    rcx
 
         push    ax
-        mov     rdi, STDOUT_FD
         mov     rsi, rsp
         mov     rdx, 1
-        mov     rax, 0x02000004
-        syscall
+        sys_write_call
         pop     ax
 
         pop     rcx
@@ -366,12 +377,10 @@ readmsg:
         push    rdx
         push    rcx
 
-        mov     rdi, STDIN_FD
         mov     rsi, rax
         mov     rdx, 0xff
-        mov     rax, 0x02000003
-        syscall
-
+        sys_read_call
+        
         pop     rcx
         pop     rdx
         pop     rsi
