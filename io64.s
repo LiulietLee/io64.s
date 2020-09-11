@@ -101,7 +101,7 @@ __disphb:
         push    rsi
         push    rcx
 
-        and     rax, 0x000000ff
+        movzx   rax, al
         mov     rbx, rax
         xor     rax, rax
         xor     rcx, rcx
@@ -201,28 +201,16 @@ __disphqlooop:
 ; al = input data
 dispuib:
         push    rax
-        push    rbx
-
-        mov     rbx, rax
-        xor     rax, rax
-        mov     al, bl
+        movzx   rax, al
         call    dispuiq
-        
-        pop     rbx
         pop     rax
         ret
 
 ; ax = input data
 dispuiw:
         push    rax
-        push    rbx
-
-        mov     rbx, rax
-        xor     rax, rax
-        mov     ax, bx
+        movzx   rax, ax
         call    dispuiq
-        
-        pop     rbx
         pop     rax
         ret
 
@@ -235,7 +223,7 @@ dispuid:
         xor     rax, rax
         mov     eax, ebx
         call    dispuiq
-        
+
         pop     rbx
         pop     rax
         ret
@@ -366,7 +354,21 @@ __rspequstr:    db "RSP = ", 0
 
 ; al = ascii code
 readc:
+        push    rdi
+        push    rsi
+        push    rdx
+        push    rcx
+        
+        push    rax
+        mov     rsi, rsp
+        mov     rdx, 1
+        sys_read_call
+        pop     rax
 
+        pop     rcx
+        pop     rdx
+        pop     rsi
+        pop     rdi
         ret
 
 ; input:        rax = buffer address
