@@ -388,3 +388,60 @@ readmsg:
         pop     rsi
         pop     rdi
         ret
+
+; al = input unsigned int
+readuib:
+        push    rbx
+        call    readuiq
+        mov     bl, al
+        mov     rax, rbx
+        pop     rbx
+        ret
+
+; ax = input unsigned int
+readuiw:
+        push    rbx
+        call    readuiq
+        mov     bx, ax
+        mov     rax, rbx
+        pop     rbx
+        ret
+
+; eax = input unsigned int
+readuid:
+        push    rbx
+        call    readuiq
+        mov     ebx, eax
+        mov     rax, rbx
+        pop     rbx
+        ret
+
+; rax = input unsigned int
+readuiq:
+        push    rbx
+        push    rdx
+        push    rcx
+
+        xor     rbx, rbx
+        xor     rax, rax
+        mov     rcx, 10
+
+__rduiqreadch:
+        call    readc
+        cmp     al, "0"
+        jb      __rduiqdone
+        cmp     al, "9"
+        ja      __rduiqdone
+        sub     al, "0"
+        xchg    rax, rbx
+        mul     rcx
+        add     rax, rbx
+        xchg    rax, rbx
+        jmp     __rduiqreadch
+
+__rduiqdone:
+        mov     rax, rbx
+        pop     rcx
+        pop     rdx
+        pop     rbx
+        ret
