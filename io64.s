@@ -13,16 +13,31 @@ SYS_WRITE_NUM   equ 0x02000004
         syscall
 %endmacro
 
-%macro  sys_write_call 0
+%macro  syscall_write 0
         mov     rax, SYS_WRITE_NUM
         mov     rdi, STDOUT_FD
         syscall
 %endmacro
 
-%macro  sys_read_call 0
+%macro  syscall_read 0
         mov     rax, SYS_READ_NUM
         mov     rdi, STDIN_FD
         syscall
+%endmacro
+
+; %1 = al/bl/eax
+; %2 = bl/bx/ebx
+; %3 = proc name
+%macro __narrow_reg_range_q 3
+        push    rbx
+        mov     rbx, rax
+        xor     rax, rax
+        mov     %1, %2
+        call    %3
+        mov     %2, %1
+        mov     rax, rbx
+        pop     rbx
+        ret
 %endmacro
 
 ; input:    rax = address of string with end 0
@@ -57,7 +72,7 @@ dispmsg:
         mov     rsi, rax
         call    __strlen
         mov     rdx, rax
-        sys_write_call
+        syscall_write
 
         pop     rcx
         pop     rdi
@@ -76,7 +91,7 @@ dispc:
         push    ax
         mov     rsi, rsp
         mov     rdx, 1
-        sys_write_call
+        syscall_write
         pop     ax
 
         pop     rcx
@@ -199,34 +214,13 @@ __disphqlooop:
         ret
 
 ; al = input data
-dispuib:
-        push    rax
-        movzx   rax, al
-        call    dispuiq
-        pop     rax
-        ret
+dispuib: __narrow_reg_range_q al, bl, dispuiq
 
 ; ax = input data
-dispuiw:
-        push    rax
-        movzx   rax, ax
-        call    dispuiq
-        pop     rax
-        ret
+dispuiw: __narrow_reg_range_q ax, bx, dispuiq
 
 ; eax = input data
-dispuid:
-        push    rax
-        push    rbx
-
-        mov     rbx, rax
-        xor     rax, rax
-        mov     eax, ebx
-        call    dispuiq
-
-        pop     rbx
-        pop     rax
-        ret
+dispuid: __narrow_reg_range_q eax, ebx, dispuiq
 
 ; rax = input data
 dispuiq:
@@ -362,7 +356,7 @@ readc:
         push    rax
         mov     rsi, rsp
         mov     rdx, 1
-        sys_read_call
+        syscall_read
         pop     rax
 
         pop     rcx
@@ -381,7 +375,7 @@ readmsg:
 
         mov     rsi, rax
         mov     rdx, 0xff
-        sys_read_call
+        syscall_read
         
         pop     rcx
         pop     rdx
@@ -390,31 +384,13 @@ readmsg:
         ret
 
 ; al = input unsigned int
-readuib:
-        push    rbx
-        call    readuiq
-        mov     bl, al
-        mov     rax, rbx
-        pop     rbx
-        ret
+readuib: __narrow_reg_range_q al, bl, readuiq
 
 ; ax = input unsigned int
-readuiw:
-        push    rbx
-        call    readuiq
-        mov     bx, ax
-        mov     rax, rbx
-        pop     rbx
-        ret
+readuiw: __narrow_reg_range_q ax, bx, readuiq
 
 ; eax = input unsigned int
-readuid:
-        push    rbx
-        call    readuiq
-        mov     ebx, eax
-        mov     rax, rbx
-        pop     rbx
-        ret
+readuid: __narrow_reg_range_q eax, ebx, readuiq
 
 ; rax = input unsigned int
 readuiq:
@@ -443,5 +419,55 @@ __rduiqdone:
         mov     rax, rbx
         pop     rcx
         pop     rdx
+        pop     rbx
+        ret
+
+; input:        al = input character
+; output:       al = uppercase
+__toupper:
+        cmp     al, "a"
+        jb      __tocapdone
+        cmp     al, "z"
+        ja      __tocapdone
+        sub     al, "a" - "A"
+__tocapdone:
+        ret
+
+; al = input hex
+readhb: __narrow_reg_range_q al, bl, readhq
+
+; ax = input hex
+readhw: __narrow_reg_range_q ax, bx, readhq
+
+; eax = input hex
+readhd: __narrow_reg_range_q eax, ebx, readhq
+
+readhq:
+        push    rbx
+        xor     rbx, rbx
+
+__rdhqreadc:
+        call    readc
+        call    __toupper
+        cmp     al, "0"
+        jb      __rdhqdone
+        cmp     al, "9"
+        ja      __rdhqalpha
+        sub     al, "0"
+        jmp     __rdhqupdrbx
+__rdhqalpha:
+        cmp     al, "A"
+        jb      __rdhqdone
+        cmp     al, "F"
+        ja      __rdhqdone
+        sub     al, "A"
+        add     al, 10
+__rdhqupdrbx:
+        shl     rbx, 4
+        add     bl, al
+        jmp     __rdhqreadc
+        
+__rdhqdone:
+        mov     rax, rbx
         pop     rbx
         ret
