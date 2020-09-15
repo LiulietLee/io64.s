@@ -63,6 +63,10 @@ _main:
 | dispmsg | rax = 字符串首地址 | 显示一串字符，以 0 结尾 |
 | dispc | al = 要输出的字符 | 显示 al 中的内容对应的 ASCII 字符 |
 | dispcrlf | | 显示换行，相当于 C 中的 `puts("")` |
+| dispbb | al = 8 位数据 | 以二进制显示 al 中的内容 |
+| dispbw | ax = 16 位数据 | 以二进制显示 ax 中的内容 |
+| dispbd | eax = 32 位数据 | 以二进制显示 eax 中的内容 |
+| dispbq | rax = 64 位数据 | 以二进制显示 rax 中的内容 |
 | disphb | al = 8 位数据 | 以 16 进制显示 al 中的内容 |
 | disphw | ax = 16 位数据 | 以 16 进制显示 ax 中的内容 |
 | disphd | eax = 32 位数据 | 以 16 进制显示 eax 中的内容 |

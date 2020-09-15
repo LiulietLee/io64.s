@@ -214,6 +214,86 @@ __disphqlooop:
         ret
 
 ; al = input data
+__dispbb:
+        push    rax
+        push    rcx
+        push    rdx
+
+        mov     rcx, 8
+        mov     rdx, rax
+__dispbbloop:
+        shl     dl, 1
+        jc      __dispbbone
+        mov     al, "0"
+        call    dispc
+        loop    __dispbbloop
+        jmp     __dispbbdone
+__dispbbone:
+        mov     al, "1"
+        call    dispc
+        loop    __dispbbloop
+
+__dispbbdone:
+        pop     rdx
+        pop     rcx
+        pop     rax
+        ret
+
+; al = input data
+dispbb:
+        push    rax
+        call    __dispbb
+        mov     al, "B"
+        call    dispc
+        pop     rax
+        ret
+
+; ax = input data
+dispbw:
+        push    rax
+        push    rcx
+        mov     rcx, 2
+__dispbwloop:
+        rol     ax, 8
+        call    __dispbb
+        loop    __dispbwloop
+        mov     al, "B"
+        call    dispc
+        pop     rcx
+        pop     rax
+        ret
+
+; eax = input data
+dispbd:
+        push    rax
+        push    rcx
+        mov     rcx, 4
+__dispbdloop:
+        rol     eax, 8
+        call    __dispbb
+        loop    __dispbdloop
+        mov     al, "B"
+        call    dispc
+        pop     rcx
+        pop     rax
+        ret
+
+; rax = input data
+dispbq:
+        push    rax
+        push    rcx
+        mov     rcx, 8
+__dispbqloop:
+        rol     rax, 8
+        call    __dispbb
+        loop    __dispbqloop
+        mov     al, "B"
+        call    dispc
+        pop     rcx
+        pop     rax
+        ret
+
+; al = input data
 dispuib: __narrow_reg_range_q al, bl, dispuiq
 
 ; ax = input data
@@ -442,6 +522,7 @@ readhw: __narrow_reg_range_q ax, bx, readhq
 ; eax = input hex
 readhd: __narrow_reg_range_q eax, ebx, readhq
 
+; rax = input hex
 readhq:
         push    rbx
         xor     rbx, rbx
