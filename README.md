@@ -88,6 +88,10 @@ _main:
 | readuiw | | ax = 16 位数据 | 从键盘输入一个无符号十进制数字到 ax |
 | readuid | | eax = 32 位数据 | 从键盘输入一个无符号十进制数字到 eax |
 | readuiq | | rax = 64 位数据 | 从键盘输入一个无符号十进制数字到 rax |
+| readbb | | al = 8 位数据 | 从键盘输入二进制数到 al |
+| readbw | | ax = 16 位数据 | 从键盘输入二进制数到 ax |
+| readbd | | eax = 32 位数据 | 从键盘输入二进制数到 eax |
+| readbq | | rax = 64 位数据 | 从键盘输入二进制数到 rax |
 | readhb | | al = 8 位数据 | 从键盘输入 16 进制数到 al |
 | readhw | | ax = 16 位数据 | 从键盘输入 16 进制数到 ax |
 | readhd | | eax = 32 位数据 | 从键盘输入 16 进制数到 eax |
@@ -105,8 +109,8 @@ _main:
 | 宏名 | 入口 | 出口 | 功能说明 |
 |----|-----|-----|---------|
 | exit | 一个立即数 | | 退出程序，通常用法是在程序最后写上 `exit 0` |
-| sys_write_call | | | 调用 write 系统功能 |
-| sys_read_call | | | 调用 read 系统功能 |
+| syscall_write | | | 调用 write 系统功能 |
+| syscall_read | | | 调用 read 系统功能 |
 
 | 过程名 | 入口 | 出口 | 功能说明 |
 |---------|-----|-----|---------|

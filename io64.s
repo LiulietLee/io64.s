@@ -552,3 +552,35 @@ __rdhqdone:
         mov     rax, rbx
         pop     rbx
         ret
+
+; al = input binary
+readbb: __narrow_reg_range_q al, bl, readbq
+
+; ax = input binary
+readbw: __narrow_reg_range_q ax, bx, readbq
+
+; eax = input binary
+readbd: __narrow_reg_range_q eax, ebx, readbq
+
+; rax = output binary
+readbq:
+        push    rdx
+
+        xor     rdx, rdx
+__rdbqreadc:
+        call    readc
+        cmp     al, "0"
+        je      __rdbqzero
+        cmp     al, "1"
+        jne     __rdbqdone
+        shl     rdx, 1
+        or      rdx, 1
+        jmp     __rdbqreadc
+__rdbqzero:
+        shl     rdx, 1
+        jmp     __rdbqreadc
+
+__rdbqdone:
+        mov     rax, rdx
+        pop     rdx
+        ret
