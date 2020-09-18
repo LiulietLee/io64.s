@@ -340,6 +340,41 @@ __dispuiwprint:
         pop     rcx
         ret
 
+; %1 = al/ax/eax/rax
+; %2 = dl/dx/edx/rdx
+; %3 = proc name
+%macro  __dispsi_reg 3
+        push    rax
+        push    rdx
+        rol     %1, 1
+        jnc     __dispsiproc%3
+        mov     %2, %1
+        mov     al, "-"
+        call    dispc
+        mov     %1, %2
+        ror     %1, 1
+        neg     %1
+        rol     %1, 1
+__dispsiproc%3:
+        ror     %1, 1
+        call    %3
+        pop     rdx
+        pop     rax
+        ret
+%endmacro
+
+; al = input data
+dispsib: __dispsi_reg al, dl, dispuib
+
+; ax = input data
+dispsiw: __dispsi_reg ax, dx, dispuiw
+
+; eax = input data
+dispsid: __dispsi_reg eax, edx, dispuid
+
+; rax = input data
+dispsiq: __dispsi_reg rax, rdx, dispuiq
+
 ; %1 = reg, %2 = msg address
 %macro  __disprq_reg 2
         mov     rax, %2
@@ -583,4 +618,55 @@ __rdbqzero:
 __rdbqdone:
         mov     rax, rdx
         pop     rdx
+        ret
+
+; al = input data
+readsib: __narrow_reg_range_q al, bl, readsiq
+
+; ax = input data
+readsiw: __narrow_reg_range_q ax, bx, readsiq
+
+; eax = input data
+readsid: __narrow_reg_range_q eax, ebx, readsiq
+
+; rax = input data
+readsiq:
+        push    rbx
+        push    rdx
+        push    rcx
+        push    rdi
+
+        xor     rbx, rbx
+        xor     rax, rax
+        xor     rdi, rdi
+        mov     rcx, 10
+
+        call    readc
+        cmp     al, "-"
+        jne     __rdsiqnoneg
+        mov     rdi, 1
+__rdsiqreadch:
+        call    readc
+__rdsiqnoneg:
+        cmp     al, "0"
+        jb      __rdsiqdone
+        cmp     al, "9"
+        ja      __rdsiqdone
+        sub     al, "0"
+        xchg    rax, rbx
+        mul     rcx
+        add     rax, rbx
+        xchg    rax, rbx
+        jmp     __rdsiqreadch
+
+__rdsiqdone:
+        mov     rax, rbx
+        cmp     rdi, 1
+        jne     __rdsiqend
+        neg     rax
+__rdsiqend:
+        pop     rdi
+        pop     rcx
+        pop     rdx
+        pop     rbx
         ret
