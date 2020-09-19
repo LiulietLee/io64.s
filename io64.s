@@ -82,7 +82,6 @@ dispmsg:
 
 ; al = input character
 dispc:
-        push    rax
         push    rdi
         push    rsi
         push    rdx
@@ -98,7 +97,6 @@ dispc:
         pop     rdx
         pop     rsi
         pop     rdi
-        pop     rax
         ret
 
 dispcrlf:
