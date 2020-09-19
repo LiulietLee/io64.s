@@ -4,7 +4,7 @@
 ## 前置条件
 
 ```bash
-brew install nasm gdb
+brew install nasm
 ```
 
 ## 程序框架
@@ -81,6 +81,7 @@ _main:
 | dispsiq | rax = 64 位数据 | 以有符号十进制显示 rax 中的内容 |
 | disprq | | 以 16 进制显示八个 64 位通用寄存器的内容 |
 | disprd | | 以 16 进制显示八个 32 位通用寄存器的内容 |
+| disprf | | 显示标志位 |
 
 ### 输出程序
 
@@ -108,7 +109,6 @@ _main:
 **备注**
 - 上面的所有输入输出功能均通过系统功能调用指令 syscall 实现
 - 对于 dispcrlf，理论上来说 macOS 下换行只需要 lf 不需要 cr，但为了与 io32.inc 保持一致所以依然使用 dispcrlf 这个名字
-- 部分 io32.inc 中的程序在这里并没有实现，只实现了一些我平时用的多的部分
 
 ### 副产物
 
@@ -119,6 +119,8 @@ _main:
 | exit | 一个立即数 | | 退出程序，通常用法是在程序最后写上 `exit 0` |
 | syscall_write | | | 调用 write 系统功能 |
 | syscall_read | | | 调用 read 系统功能 |
+| __disp2c | ax = "c1c2" | | 显示两个字符 c1c2 |
+| __disp4c | eax = "c1c2c3c4" | | 显示四个字符 c1c2c3c4 |
 
 | 过程名 | 入口 | 出口 | 功能说明 |
 |---------|-----|-----|---------|

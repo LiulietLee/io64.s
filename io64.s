@@ -375,91 +375,114 @@ dispsid: __dispsi_reg eax, edx, dispuid
 ; rax = input data
 dispsiq: __dispsi_reg rax, rdx, dispuiq
 
-; %1 = reg, %2 = msg address
-%macro  __disprq_reg 2
-        mov     rax, %2
-        call    dispmsg
-        mov     rax, %1
-        call    disphq
-        mov     rax, 9
+; ax = c1 c2
+%macro  __disp2c 0
+        call    dispc
+        xchg    al, ah
+        call    dispc
+        xchg    al, ah
+%endmacro
+
+; %1 = jcond
+; %2 = msg
+%macro  __disprf 2
+        mov     ax, %2
+        __disp2c
+        %1      __disprfone%1
+        mov     ax, "=0"
+        __disp2c
+        jmp     __disprfend%1
+__disprfone%1:
+        mov     ax, "=1"
+        __disp2c
+__disprfend%1:
+        call    dispcrlf
+%endmacro
+
+disprf:
+        push    rax
+        __disprf        jc, "CF"
+        __disprf        jo, "OF"
+        __disprf        jp, "PF"
+        __disprf        jz, "ZF"
+        __disprf        js, "SF"
+        pop     rax
+        ret
+
+; eax = c1c2c3c4
+%macro  __disp4c 0
+        __disp2c
+        rol     eax, 16
+        __disp2c
+        rol     eax, 16
+%endmacro
+
+; %1 = rax/eax
+; %2 = reg
+; %3 = str
+; %4 = disphq/disphd
+%macro  __disprq_reg 4
+        mov     %1, %3
+        __disp4c
+        mov     %1, %2
+        call    %4
+        mov     %1, 9
         call    dispc
 %endmacro
+
 disprq:
         push    rax
 
         push    rax
-        mov     rax, __raxequstr
-        call    dispmsg
+        mov     rax, "RAX="
+        __disp4c
         pop     rax
         call    disphq
         mov     rax, 9
         call    dispc
 
-        __disprq_reg    rbx, __rbxequstr
+        __disprq_reg    rax, rbx, "RBX=", disphq
         call    dispcrlf
 
-        __disprq_reg    rcx, __rcxequstr
-        __disprq_reg    rdx, __rdxequstr
+        __disprq_reg    rax, rcx, "RCX=", disphq
+        __disprq_reg    rax, rdx, "RDX=", disphq
         call    dispcrlf
 
-        __disprq_reg    rsi, __rsiequstr
-        __disprq_reg    rdi, __rdiequstr
+        __disprq_reg    rax, rsi, "RSI=", disphq
+        __disprq_reg    rax, rdi, "RDI=", disphq
         call    dispcrlf
 
-        __disprq_reg    rbp, __rbpequstr
-        __disprq_reg    rsp, __rspequstr
+        __disprq_reg    rax, rbp, "RBP=", disphq
+        __disprq_reg    rax, rsp, "RSP=", disphq
         call    dispcrlf
 
         pop     rax
         ret
 
-%macro  __disprd_reg 2
-        mov     rax, "E"
-        call    dispc
-        mov     rax, %2
-        inc     rax
-        call    dispmsg
-        mov     eax, %1
-        call    disphd
-        mov     rax, 9
-        call    dispc
-%endmacro
 disprd:
         push    rax
 
         push    rax
-        mov     rax, "E"
-        call    dispc
-        mov     rax, __raxequstr
-        inc     rax
-        call    dispmsg
+        mov     rax, "EAX="
+        __disp4c
         pop     rax
         call    disphd
         mov     rax, 9
         call    dispc
 
-        __disprd_reg    ebx, __rbxequstr
-        __disprd_reg    ecx, __rcxequstr
-        __disprd_reg    edx, __rdxequstr
+        __disprq_reg    eax, ebx, "EBX=", disphd
+        __disprq_reg    eax, ecx, "ECX=", disphd
+        __disprq_reg    eax, edx, "EDX=", disphd
         call    dispcrlf
 
-        __disprd_reg    esi, __rsiequstr
-        __disprd_reg    edi, __rdiequstr
-        __disprd_reg    ebp, __rbpequstr
-        __disprd_reg    esp, __rspequstr
+        __disprq_reg    eax, esi, "ESI=", disphd
+        __disprq_reg    eax, edi, "EDI=", disphd
+        __disprq_reg    eax, ebp, "EBP=", disphd
+        __disprq_reg    eax, esp, "ESP=", disphd
         call    dispcrlf
 
         pop     rax
         ret
-
-__raxequstr:    db "RAX = ", 0
-__rbxequstr:    db "RBX = ", 0
-__rcxequstr:    db "RCX = ", 0
-__rdxequstr:    db "RDX = ", 0
-__rsiequstr:    db "RSI = ", 0
-__rdiequstr:    db "RDI = ", 0
-__rbpequstr:    db "RBP = ", 0
-__rspequstr:    db "RSP = ", 0
 
 ; al = ascii code
 readc:
