@@ -40,6 +40,12 @@ SYS_WRITE_NUM   equ 0x02000004
         ret
 %endmacro
 
+section .text
+
+_main:
+        call    start
+        ret
+
 ; input:    rax = address of string with end 0
 ; output:   rax = length of string
 __strlen:

@@ -6,7 +6,7 @@ msg:    db      "Hi there", 10, 0
 
 section .text
 
-_main:
+start:
         mov     rax, msg
         call    dispmsg
         exit    0

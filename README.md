@@ -22,7 +22,7 @@ section .text
 
 ; 以下代码段内容
 
-_main:  ; 必须以 _main 作为程序入口
+start:
         
         ; 主程序内容
 
@@ -40,7 +40,7 @@ msg:    db      "Hi there", 10, 0
 
 section .text
 
-_main:
+start:
         mov     rax, msg        ; NASM 中没有 `offset` 关键字
         call    dispmsg
         exit    0
